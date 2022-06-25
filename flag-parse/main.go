@@ -28,8 +28,14 @@ func validateArgs(c config) error {
 	return nil
 }
 
+// 1. create empty config
+// 2. create FlagSet object that names the command and what to do for errors
+// 3. set the writer
+// 4. define the command line option (where to save addr, name, default, default msg)
+// 5. parse args
+// 6. handle positional args
 func parseArgs(w io.Writer, args []string) (config, error) {
-	// create empty config to
+	// create empty config
 	c := config{}
 	// create FlagSet object to handle CLI args (command-name, error action)
 	fs := flag.NewFlagSet("greeter", flag.ContinueOnError)
@@ -79,7 +85,6 @@ func greetUser(c config, name string, w io.Writer) {
 // performs action based on config values
 func runCmd(r io.Reader, w io.Writer, c config) error {
 	if c.printUsage {
-		printUsage(w)
 		return nil
 	}
 
