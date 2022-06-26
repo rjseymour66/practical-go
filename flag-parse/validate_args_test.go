@@ -15,6 +15,10 @@ func TestValidateArgs(t *testing.T) {
 			err: errors.New("Must specify a number greater than 0"),
 		},
 		{
+			c:   config{outputHtmlPath: "output.html"},
+			err: nil,
+		},
+		{
 			c:   config{numTimes: -1},
 			err: errors.New("Must specify a number greater than 0"),
 		},

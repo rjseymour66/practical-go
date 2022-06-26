@@ -7,12 +7,13 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"text/template"
 )
 
 // in-memory representation of data used for runtime behavior
 type config struct {
-	numTimes   int
-	printUsage bool
+	numTimes       int
+	outputHtmlPath string
 }
 
 var usageString = fmt.Sprintf(`Usage: %s <integer> [-h|--help]
@@ -22,7 +23,7 @@ A greeter application that prints the name you entered <integer> number of times
 
 // validation funcs only return errors
 func validateArgs(c config) error {
-	if !(c.numTimes > 0) {
+	if !(c.numTimes > 0) && len(c.outputHtmlPath) == 0 {
 		return errors.New("Must specify a number greater than 0")
 	}
 	return nil
@@ -41,6 +42,7 @@ func parseArgs(w io.Writer, args []string) (config, error) {
 	fs := flag.NewFlagSet("greeter", flag.ContinueOnError)
 	// set the writer
 	fs.SetOutput(w)
+	fs.StringVar(&c.outputHtmlPath, "o", "", "Path to the HTML page containing the greeting")
 	// setting a command line option. IntVar creates int option
 	fs.IntVar(&c.numTimes, "n", 0, "Number of times to greet")
 	err := fs.Parse(args)
@@ -82,15 +84,29 @@ func greetUser(c config, name string, w io.Writer) {
 	}
 }
 
+func createHtmlGreeter(c config, name string) error {
+	f, err := os.Create(c.outputHtmlPath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	tmpl, err := template.New("greeterHtml").Parse("<h1>Hello {{.}}</h1>")
+	if err != nil {
+		return err
+	}
+	return tmpl.Execute(f, name)
+}
+
 // performs action based on config values
 func runCmd(r io.Reader, w io.Writer, c config) error {
-	if c.printUsage {
-		return nil
-	}
-
 	name, err := getName(r, w)
 	if err != nil {
 		return err
+	}
+
+	if len(c.outputHtmlPath) != 0 {
+		return createHtmlGreeter(c, name)
 	}
 	greetUser(c, name, w)
 	return nil
@@ -103,14 +119,12 @@ func main() {
 		fmt.Fprintln(os.Stdout, err)
 		os.Exit(1)
 	}
-
 	// validate there are args
 	err = validateArgs(c)
 	if err != nil {
 		fmt.Fprintln(os.Stdout, err)
 		os.Exit(1)
 	}
-
 	// run getUsage or print the name to the console
 	err = runCmd(os.Stdin, os.Stdout, c)
 	if err != nil {

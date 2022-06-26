@@ -7,9 +7,10 @@ import (
 )
 
 type testConfig struct {
-	args     []string
-	err      error
-	numTimes int
+	args           []string
+	err            error
+	numTimes       int
+	outputHtmlPath string
 }
 
 func TestParseArgs(t *testing.T) {
@@ -23,6 +24,12 @@ func TestParseArgs(t *testing.T) {
 			args:     []string{"-n", "10"},
 			err:      nil,
 			numTimes: 10,
+		},
+		{
+			args:           []string{"-n", "10", "-o", "output.html"},
+			err:            nil,
+			numTimes:       10,
+			outputHtmlPath: "output.html",
 		},
 		{
 			args:     []string{"-n", "abc"},
@@ -55,6 +62,10 @@ func TestParseArgs(t *testing.T) {
 
 		if c.numTimes != tc.numTimes {
 			t.Errorf("Expected numTimes to be: %v, got: %v\n", tc.numTimes, c.numTimes)
+		}
+
+		if len(tc.outputHtmlPath) != 0 && c.outputHtmlPath != tc.outputHtmlPath {
+			t.Errorf("Expected outputHtmlPath to be: %v, got: %v\n", tc.outputHtmlPath, c.outputHtmlPath)
 		}
 		byteBuf.Reset()
 	}
