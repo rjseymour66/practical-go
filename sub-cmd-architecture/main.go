@@ -14,7 +14,7 @@ import (
 var errInvalidSubCommand = errors.New("Invalid sub-command specified")
 
 func printUsage(w io.Writer) {
-	fmt.Fprintf(w, "Usage: mync [http|grcp] -h\n")
+	fmt.Fprintf(w, "Usage: mync [http|grpc] -h\n")
 	cmd.HandleHttp(w, []string{"-h"})
 	cmd.HandleGrpc(w, []string{"-h"})
 }
