@@ -40,6 +40,6 @@ http: <options> server`
 
 	c := httpConfig{verb: v}
 	c.url = fs.Arg(0)
-	fmt.Println(w, "Executing http command")
+	fmt.Fprintln(w, "Executing http command")
 	return nil
 }
