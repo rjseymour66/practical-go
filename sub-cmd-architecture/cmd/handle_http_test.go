@@ -38,6 +38,11 @@ Options:
 			err:    nil,
 			output: "Executing http command\n",
 		},
+		{
+			args:   []string{"-verb", "PUT", "http://localhost"},
+			err:    ErrInvalidHTTPMethod,
+			output: "Invalid HTTP method\n",
+		},
 	}
 
 	byteBuf := new(bytes.Buffer)

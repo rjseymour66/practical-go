@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"flag"
 	"fmt"
 	"io"
@@ -11,11 +12,23 @@ type httpConfig struct {
 	verb string
 }
 
+func validateConfig(c httpConfig) error {
+	allowedVerbs := []string{"GET", "POST", "HEAD"}
+	for _, v := range allowedVerbs {
+		if c.verb == v {
+			return nil
+		}
+	}
+	return ErrInvalidHTTPMethod
+}
+
 func HandleHttp(w io.Writer, args []string) error {
-	var v string
+	c := httpConfig{}
+
 	fs := flag.NewFlagSet("http", flag.ContinueOnError)
 	fs.SetOutput(w)
-	fs.StringVar(&v, "verb", "GET", "HTTP method")
+	// sets the default
+	fs.StringVar(&c.verb, "verb", "GET", "HTTP method")
 
 	fs.Usage = func() {
 		var usageString = `
@@ -38,7 +51,14 @@ http: <options> server`
 		return ErrNoServerSpecified
 	}
 
-	c := httpConfig{verb: v}
+	err = validateConfig(c)
+	if err != nil {
+		if errors.Is(err, ErrInvalidHTTPMethod) {
+			fmt.Fprintln(w, "Invalid HTTP method")
+		}
+		return err
+	}
+
 	c.url = fs.Arg(0)
 	fmt.Fprintln(w, "Executing http command")
 	return nil
