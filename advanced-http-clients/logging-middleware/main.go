@@ -50,7 +50,8 @@ func fetchRemoteResource(client *http.Client, url string) ([]byte, error) {
 //   3. Assigns the new logger to the log property of the LoggingClient struct
 //   4. Creates a client with a 15 sec timeout
 //   5. Assigns the LoggingClient the HTTP client's Transport method.
-//   6.
+//   6. Fetches the remote resource.
+//   7. Logs the number of bytes returned the console.
 
 func main() {
 	if len(os.Args) != 2 {
